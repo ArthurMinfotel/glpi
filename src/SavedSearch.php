@@ -45,12 +45,14 @@ use Glpi\Error\ErrorHandler;
  *
  * @since 9.2
  **/
-class SavedSearch extends CommonDBVisible implements ExtraVisibilityCriteria
+class SavedSearch extends CommonDBTM implements ExtraVisibilityCriteria
 {
     use Clonable;
+    use CommonDBVisible {
+        CommonDBVisible::haveVisibilityAccess as traitHaveVisibilityAccess;
+    }
 
-    public static $rightname               = 'bookmark_public';
-    public static $types                   = ['Group', 'User', 'Entity'];
+    public static $rightname = 'bookmark_public';
 
     const SEARCH = 1; //SEARCH SYSTEM bookmark
     const URI    = 2;
@@ -60,10 +62,14 @@ class SavedSearch extends CommonDBVisible implements ExtraVisibilityCriteria
     const COUNT_YES = 1;
     const COUNT_AUTO = 2;
 
-    protected $userClass = SavedSearch_UserTarget::class;
-    protected $groupClass = Group_SavedSearch::class;
-    protected $entityClass = Entity_SavedSearch::class;
-    protected $service = 'tools';
+    public static function getTypes()
+    {
+        return ['Group', 'User', 'Entity'];
+    }
+
+    public function getUserClass() {
+        return SavedSearch_UserTarget::class;
+    }
 
     public static function getForbiddenActionsForMenu()
     {
@@ -168,7 +174,7 @@ class SavedSearch extends CommonDBVisible implements ExtraVisibilityCriteria
             return false;
         }
 
-        return parent::haveVisibilityAccess();
+        return $this->traitHaveVisibilityAccess();
     }
 
     public function canCreateItem(): bool

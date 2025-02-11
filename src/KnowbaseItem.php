@@ -42,10 +42,13 @@ use Glpi\RichText\RichText;
 /**
  * KnowbaseItem Class
  **/
-class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
+class KnowbaseItem extends CommonDBTM implements ExtraVisibilityCriteria
 {
     use Glpi\Features\Clonable;
     use Glpi\Features\TreeBrowse;
+    use CommonDBVisible {
+        CommonDBVisible::haveVisibilityAccess as traitHaveVisibilityAccess;
+    }
 
     public static $browse_default = true;
 
@@ -457,7 +460,7 @@ class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
             return true;
         }
 
-        return parent::haveVisibilityAccess();
+        return $this->traitHaveVisibilityAccess();
     }
 
     /**

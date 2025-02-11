@@ -55,7 +55,8 @@
                         {% if timeline_itemtype.template is defined %}
                            {{ include(timeline_itemtype.template, {
                               'item': item,
-                              'subitem': timeline_itemtype.item
+                              'subitem': timeline_itemtype.item,
+                              'subitem_template': timeline_itemtype.template_obj
                            }) }}
                         {% else %}
                            {% set sf_options = {'parent': item} %}

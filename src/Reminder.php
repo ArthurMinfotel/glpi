@@ -44,7 +44,7 @@ use Sabre\VObject\Component\VTodo;
 /**
  * Reminder Class
  **/
-class Reminder extends CommonDBVisible implements
+class Reminder extends CommonDBTM implements
     CalDAVCompatibleItemInterface,
     ExtraVisibilityCriteria
 {
@@ -53,6 +53,9 @@ class Reminder extends CommonDBVisible implements
     }
     use VobjectConverterTrait;
     use Clonable;
+    use CommonDBVisible {
+        CommonDBVisible::haveVisibilityAccess as traitHaveVisibilityAccess;
+    }
 
     // From CommonDBTM
     public $dohistory                   = true;
@@ -172,7 +175,7 @@ class Reminder extends CommonDBVisible implements
         if (!self::canView()) {
             return false;
         }
-        return parent::haveVisibilityAccess();
+        return $this->traitHaveVisibilityAccess();
     }
 
     /**

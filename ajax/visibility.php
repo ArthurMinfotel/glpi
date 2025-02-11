@@ -108,36 +108,54 @@ if (isset($_POST['type']) && !empty($_POST['type'])) {
 
         case 'Entity':
             echo "<td>";
-            Entity::dropdown([
-                'value'       => $_SESSION['glpiactive_entity'],
-                'name'        => $prefix . 'entities_id' . $suffix,
-                'entity'      => $_POST['entity'] ?? -1,
-                'entity_sons' => $_POST['is_recursive'] ?? false,
-            ]);
+            $entityParams = [
+                'value'  => $_SESSION['glpiactive_entity'],
+                'name'   => $prefix . 'entities_id' . $suffix,
+            ];
+            // remove entities which can not access the item from the possible targets
+            if (isset($_POST['entity'])) {
+                $entityParams['entity'] = $_POST['entity'];
+                if (isset($_POST['entity_sons'])) {
+                    $entityParams['entity_sons'] = $_POST['entity_sons'];
+                }
+            } else {
+                $entityParams['entity'] = $_SESSION['glpiactiveentities'];
+            }
+            Entity::dropdown($entityParams);
             echo "</td><td>";
-            echo __s('Child entities');
+            echo __('Child entities');
             echo "</td><td>";
-            Dropdown::showYesNo($prefix . 'is_recursive' . $suffix);
+            if (isset($_POST['entity_sons']) && !$_POST['entity_sons']) {
+                __('No');
+                echo Html::hidden(
+                    $prefix . 'is_recursive' . $suffix,
+                    ['value' => 0]
+                );
+            } else {
+                Dropdown::showYesNo($prefix . 'is_recursive' . $suffix);
+            }
             echo "</td>";
             $display = true;
             break;
 
         case 'Profile':
             echo "<td>";
-            $checkright   = (READ | CREATE | UPDATE | PURGE);
-            $righttocheck = $_POST['right'];
-            if ($_POST['right'] == 'faq') {
-                $righttocheck = 'knowbase';
-                $checkright   = KnowbaseItem::READFAQ;
-            }
             $params             = [
                 'rand'      => $rand,
-                'name'      => $prefix . 'profiles_id' . $suffix,
-                'condition' => [
+                'name'      => $prefix . 'profiles_id' . $suffix
+            ];
+            $righttocheck = isset($_POST['right']) ? $_POST['right'] : null;
+            if ($righttocheck) {
+                $checkright   = (READ | CREATE | UPDATE | PURGE);
+                if ($_POST['right'] == 'faq') {
+                    $righttocheck = 'knowbase';
+                    $checkright   = KnowbaseItem::READFAQ;
+                }
+                $params['condition'] = [
                     'glpi_profilerights.name'     => $righttocheck,
                     'glpi_profilerights.rights'   => ['&', $checkright]
-                ]
-            ];
+                ];
+            }
             $params['toupdate'] = ['value_fieldname'
                                                   => 'value',
                 'to_update'  => "subvisibility$rand",
@@ -147,6 +165,14 @@ if (isset($_POST['type']) && !empty($_POST['type'])) {
                     'prefix'   => $_POST['prefix']
                 ]
             ];
+            if (isset($_POST['entity']) && $_POST['entity'] >= 0) {
+                $params['entity'] = $_POST['entity'];
+                $params['toupdate']['moreparams']['entity'] = $_POST['entity'];
+                if (isset($_POST['entity_sons'])) {
+                    $params['entity_sons'] = $_POST['entity_sons'];
+                    $params['toupdate']['moreparams']['entity_sons'] = $_POST['entity_sons'];
+                }
+            }
 
             Profile::dropdown($params);
             echo "</td><td>";

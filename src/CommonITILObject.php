@@ -7364,6 +7364,7 @@ abstract class CommonITILObject extends CommonDBTM
             'icon'          => ITILFollowup::getIcon(),
             'label'         => _x('button', 'Answer'),
             'short_label'   => _x('button', 'Answer'),
+            'template_obj'  => new ITILFollowupTemplate(),
             'template'      => 'components/itilobject/timeline/form_followup.html.twig',
             'item'          => $fup,
             'hide_in_menu'  => !$canadd_fup
@@ -7374,6 +7375,7 @@ abstract class CommonITILObject extends CommonDBTM
             'icon'          => CommonITILTask::getIcon(),
             'label'         => _x('button', 'Create a task'),
             'short_label'   => _x('button', 'Task'),
+            'template_obj'  => new TaskTemplate(),
             'template'      => 'components/itilobject/timeline/form_task.html.twig',
             'item'          => $task,
             'hide_in_menu'  => !$canadd_task
@@ -7384,6 +7386,7 @@ abstract class CommonITILObject extends CommonDBTM
             'icon'          => ITILSolution::getIcon(),
             'label'         => _x('button', 'Add a solution'),
             'short_label'   => _x('button', 'Solution'),
+            'template_obj'  => new SolutionTemplate(),
             'template'      => 'components/itilobject/timeline/form_solution.html.twig',
             'item'          => new ITILSolution(),
             'hide_in_menu'  => !$canadd_solution
@@ -7394,6 +7397,7 @@ abstract class CommonITILObject extends CommonDBTM
             'icon'          => Document_Item::getIcon(),
             'label'         => _x('button', 'Add a document'),
             'short_label'   => _x('button', 'Document'),
+            'template_obj'  => null,
             'template'      => 'components/itilobject/timeline/form_document_item.html.twig',
             'item'          => new Document_Item(),
             'hide_in_menu'  => !$canadd_document

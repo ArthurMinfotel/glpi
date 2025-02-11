@@ -38,14 +38,8 @@ use Glpi\Event;
 /**
  * Common DataBase visibility for items
  */
-abstract class CommonDBVisible extends CommonDBTM
+trait CommonDBVisible
 {
-    /**
-     * Types of target available for the itemtype
-     * @var string[]
-     */
-    public static $types = ['Entity', 'Group', 'Profile', 'User'];
-
     /**
      * Entities on which item is visible.
      * Keys are ID, values are DB fields values.
@@ -75,55 +69,41 @@ abstract class CommonDBVisible extends CommonDBTM
     protected $users = [];
 
     /**
-     * Class defining relation to $users
-     * @var string
+     * Class for Group type target
+     * @return string
      */
-    protected $userClass;
-
+    public function getGroupClass() {
+        return 'Group_' . $this::class;
+    }
     /**
-     * Class defining relation to $profiles
-     * @var string
+     * Class for User type target
+     * @return string
      */
-    protected $profileClass;
-
+    public function getUserClass() {
+        return $this::class . '_User';
+    }
     /**
-     * Class defining relation to $groups
-     * @var string
+     * Class for Profile type target
+     * @return string
      */
-    protected $groupClass;
-
+    public function getProfileClass() {
+        return 'Profile_' . $this::class;
+    }
     /**
-     * Class defining relation to entities
-     * @var string
+     * Class for Profile type target
+     * @return string
      */
-    protected $entityClass;
+    public function getEntityClass() {
+        return 'Entity_' . $this::class;
+    }
 
-    /**
-     * Service for visibility target log
-     * @var string
-     */
-    protected $service;
+    public function getService() {
+        return 'tools';
+    }
 
-    public function __construct()
+    public static function getTypes()
     {
-        // define default values
-        if (!$this->userClass) {
-            $this->userClass = $this->getType() . '_User';
-        }
-        if (!$this->groupClass) {
-            $this->groupClass = 'Group_' . $this->getType();
-        }
-        if (!$this->entityClass) {
-            $this->entityClass = 'Entity_' . $this->getType();
-        }
-        if (!$this->profileClass) {
-            $this->profileClass = 'Profile_' . $this->getType();
-        }
-        if (!$this->service) {
-            $this->service =  'tools';
-        }
-
-        parent::__construct();
+        return ['User', 'Group', 'Profile', 'Entity'];
     }
 
     public function __get(string $property)
@@ -179,7 +159,7 @@ abstract class CommonDBVisible extends CommonDBTM
     public function haveVisibilityAccess()
     {
        // Author
-        if ($this->fields['users_id'] == Session::getLoginUserID()) {
+        if (isset($this->fields['users_id']) && $this->fields['users_id'] == Session::getLoginUserID()) {
             return true;
         }
        // Users
@@ -268,7 +248,7 @@ abstract class CommonDBVisible extends CommonDBTM
      */
     public function getVisibilityRight()
     {
-        return strtolower($this::getType()) . '_public';
+        return strtolower($this::class) . '_public';
     }
 
     /**
@@ -329,7 +309,7 @@ abstract class CommonDBVisible extends CommonDBTM
                               => ['delete' => _x('button', 'Delete permanently')]
             ];
 
-            if ($this->fields['users_id'] != Session::getLoginUserID()) {
+            if (isset($this->fields['users_id']) && $this->fields['users_id'] != Session::getLoginUserID()) {
                 $massiveactionparams['confirm']
                 = __('Caution! You are not the author of this element. Delete targets can result in loss of access to that element.');
             }
@@ -358,7 +338,7 @@ abstract class CommonDBVisible extends CommonDBTM
                     echo "<tr class='tab_bg_1'>";
                     if ($canedit) {
                         echo "<td>";
-                        $itemtype = $this::getType() != SavedSearch::getType() ? $this::getType() . '_User' : $this::getType() . '_UserTarget';
+                        $itemtype = $this::class != SavedSearch::class ? $this::class . '_User' : $this::class . '_UserTarget';
                         Html::showMassiveActionCheckBox($itemtype, $data["id"]);
                         echo "</td>";
                     }
@@ -376,7 +356,7 @@ abstract class CommonDBVisible extends CommonDBTM
                     echo "<tr class='tab_bg_1'>";
                     if ($canedit) {
                         echo "<td>";
-                        Html::showMassiveActionCheckBox('Group_' . $this::getType(), $data["id"]);
+                        Html::showMassiveActionCheckBox('Group_' . $this::class, $data["id"]);
                         echo "</td>";
                     }
                     echo "<td>" . htmlescape(Group::getTypeName(1)) . "</td>";
@@ -537,27 +517,27 @@ abstract class CommonDBVisible extends CommonDBTM
      */
     public function addVisibility(array $inputs)
     {
-        $fkField = getForeignKeyFieldForItemType($this->getType());
+        $fkField = getForeignKeyFieldForItemType($this::class);
         $item = null;
         switch ($inputs['_type']) {
             case 'User':
-                $item = new $this->userClass();
+                $item = new $this->getUserClass();
                 break;
             case 'Group':
-                $item = new $this->groupClass();
+                $item = new $this->getGroupClass();
                 break;
             case 'Entity':
-                $item = new $this->entityClass();
+                $item = new $this->getEntityClass();
                 break;
             case 'Profile':
-                $item = new $this->profileClass();
+                $item = new $this->getProfileClass();
                 break;
         }
         if (!is_null($item)) {
             $item->add($inputs);
             Event::log(
                 $inputs[$fkField],
-                $this->getType(),
+                $this::class,
                 4,
                 $this->service,
                 //TRANS: %s is the user login
