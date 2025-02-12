@@ -229,7 +229,7 @@ class SavedSearch extends CommonDBTM implements ExtraVisibilityCriteria
             $item = new Entity_SavedSearch();
             $item->add([
                 'savedsearches_id' => $this->getID(),
-                'entites_id' => $this->fields['entities_id'],
+                'entities_id' => $this->fields['entities_id'],
                 'is_recursive' => $this->fields['is_recursive']
             ]);
         }
