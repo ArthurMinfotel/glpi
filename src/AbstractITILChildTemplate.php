@@ -54,6 +54,7 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
         }
         return $this->traitHaveVisibilityAccess();
     }
+
     /**
      * Return visibility joins to add to SQL
      *
@@ -79,6 +80,16 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
             $sql
         ));
         return $sql;
+    }
+
+    public function post_addItem() {
+        $item = new $this->getEntityClass();
+        $item->add([
+            self::getForeignKeyField() => $this->getID(),
+            'entities_id' => $this->fields['entities_id'],
+            'is_recursive' => $this->fields['is_recursive']
+        ]);
+        parent::post_addItem();
     }
 
     public function post_getFromDB()
@@ -119,12 +130,14 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
         }
         return '';
     }
+
     public function defineTabs($options = [])
     {
         $ong = parent::defineTabs();
         $this->addStandardTab(self::class, $ong, $options);
         return $ong;
     }
+
     /**
      * @param $item         CommonGLPI object
      * @param $tabnum       (default 1)
@@ -139,6 +152,7 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
         }
         return false;
     }
+
     public function cleanDBonPurge()
     {
         parent::cleanDBonPurge();
@@ -149,6 +163,7 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
             $this->getEntityClass()
         ]);
     }
+
     /**
      * Get value of "condition" option passed to ajax/getDropdownValue to apply target restrictions
      * @return array
