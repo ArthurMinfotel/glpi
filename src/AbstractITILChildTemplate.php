@@ -83,7 +83,7 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
     }
 
     public function post_addItem() {
-        $item = new $this->getEntityClass();
+        $item = new ($this->getEntityClass())();
         $item->add([
             self::getForeignKeyField() => $this->getID(),
             'entities_id' => $this->fields['entities_id'],
@@ -108,24 +108,22 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
     {
         if (self::canView()) {
             $nb = 0;
-            switch ($item::class) {
-                case self::class:
-                    if (Session::haveRight(self::$rightname, CREATE)) {
-                        if ($_SESSION['glpishow_count_on_tabs']) {
-                            $nb = $item->countVisibilities();
-                        }
-                        return [
-                            1 => self::createTabEntry(
-                                _n(
-                                    'Target',
-                                    'Targets',
-                                    Session::getPluralNumber()
-                                ),
-                                $nb
-                            )
-                        ];
+            if (in_array(\CommonDBVisible::class, getUsedTraitForItemtype($item::class), true)) {
+                if (Session::haveRight(self::$rightname, CREATE)) {
+                    if ($_SESSION['glpishow_count_on_tabs']) {
+                        $nb = $item->countVisibilities();
                     }
-                    break;
+                    return [
+                        1 => self::createTabEntry(
+                            _n(
+                                'Target',
+                                'Targets',
+                                Session::getPluralNumber()
+                            ),
+                            $nb
+                        )
+                    ];
+                }
             }
         }
         return '';
@@ -134,7 +132,7 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
     public function defineTabs($options = [])
     {
         $ong = parent::defineTabs();
-        $this->addStandardTab(self::class, $ong, $options);
+        $this->addStandardTab($this::class, $ong, $options);
         return $ong;
     }
 
@@ -145,10 +143,9 @@ abstract class AbstractITILChildTemplate extends CommonDropdown
      **/
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
-        switch ($item::class) {
-            case self::class:
-                $item->showVisibility();
-                return true;
+        if (in_array(\CommonDBVisible::class, getUsedTraitForItemtype($item::class), true)) {
+            $item->showVisibility();
+            return true;
         }
         return false;
     }

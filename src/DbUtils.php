@@ -2290,4 +2290,21 @@ final class DbUtils
         $table = $this->getTableNameForForeignKeyField($fkname);
         return $this->getItemTypeForTable($table);
     }
+
+    /**
+     * Get an array of all trait used by an itemtype by going through all its parent classes
+     * @param string $itemtype
+     * @return array
+     */
+    public function getUsedTraitForItemtype($itemtype) {
+        $traits = [];
+        do {
+            $traits = array_merge(class_uses($itemtype, true), $traits);
+        } while($itemtype = get_parent_class($itemtype));
+
+        foreach ($traits as $trait => $same) {
+            $traits = array_merge(class_uses($trait, true), $traits);
+        }
+        return array_unique($traits);
+    }
 }

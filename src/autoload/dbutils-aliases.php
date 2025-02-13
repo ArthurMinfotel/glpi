@@ -689,3 +689,9 @@ function getEntitiesRestrictCriteria(
     }
     return $res;
 }
+
+function getUsedTraitForItemtype($itemtype)
+{
+    $dbu = new DbUtils();
+    return $dbu->getUsedTraitForItemtype($itemtype);
+}

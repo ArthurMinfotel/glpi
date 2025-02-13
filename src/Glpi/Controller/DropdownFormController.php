@@ -49,6 +49,8 @@ use Toolbox;
 
 final class DropdownFormController extends AbstractController
 {
+    use VisibilityController;
+
     #[Route("/Dropdown/{class}/Form", name: "glpi_dropdown_form")]
     public function __invoke(Request $request): Response
     {
@@ -186,6 +188,9 @@ final class DropdownFormController extends AbstractController
             );
             $dropdown->showForm($id);
             Html::popFooter();
+        } else if (isset($input["addvisibility"])) {
+            self::addVisibility($request);
+            Html::back();
         } else {
             if ($options === null) {
                 $options = [];

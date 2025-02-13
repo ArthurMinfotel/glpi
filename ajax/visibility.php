@@ -108,32 +108,16 @@ if (isset($_POST['type']) && !empty($_POST['type'])) {
 
         case 'Entity':
             echo "<td>";
-            $entityParams = [
-                'value'  => $_SESSION['glpiactive_entity'],
-                'name'   => $prefix . 'entities_id' . $suffix,
-            ];
-            // remove entities which can not access the item from the possible targets
-            if (isset($_POST['entity'])) {
-                $entityParams['entity'] = $_POST['entity'];
-                if (isset($_POST['entity_sons'])) {
-                    $entityParams['entity_sons'] = $_POST['entity_sons'];
-                }
-            } else {
-                $entityParams['entity'] = $_SESSION['glpiactiveentities'];
-            }
-            Entity::dropdown($entityParams);
+            Entity::dropdown([
+                'value'       => $_SESSION['glpiactive_entity'],
+                'name'        => $prefix . 'entities_id' . $suffix,
+                'entity'      => $_POST['entity'] ?? -1,
+                'entity_sons' => $_POST['is_recursive'] ?? false,
+            ]);
             echo "</td><td>";
-            echo __('Child entities');
+            echo __s('Child entities');
             echo "</td><td>";
-            if (isset($_POST['entity_sons']) && !$_POST['entity_sons']) {
-                __('No');
-                echo Html::hidden(
-                    $prefix . 'is_recursive' . $suffix,
-                    ['value' => 0]
-                );
-            } else {
-                Dropdown::showYesNo($prefix . 'is_recursive' . $suffix);
-            }
+            Dropdown::showYesNo($prefix . 'is_recursive' . $suffix);
             echo "</td>";
             $display = true;
             break;

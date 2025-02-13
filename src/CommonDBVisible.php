@@ -279,7 +279,7 @@ trait CommonDBVisible
             echo "<tr class='tab_bg_1'><th colspan='4'>" . __s('Add a target') . "</tr>";
             echo "<tr class='tab_bg_1'><td class='tab_bg_2' width='100px'>";
 
-            $types   = static::$types;
+            $types   = $this->getTypes();
 
             $addrand = Dropdown::showItemTypes('_type', $types);
             $params = $this->getShowVisibilityDropdownParams();
@@ -521,16 +521,16 @@ trait CommonDBVisible
         $item = null;
         switch ($inputs['_type']) {
             case 'User':
-                $item = new $this->getUserClass();
+                $item = new ($this->getUserClass())();
                 break;
             case 'Group':
-                $item = new $this->getGroupClass();
+                $item = new ($this->getGroupClass())();
                 break;
             case 'Entity':
-                $item = new $this->getEntityClass();
+                $item = new ($this->getEntityClass())();
                 break;
             case 'Profile':
-                $item = new $this->getProfileClass();
+                $item = new ($this->getProfileClass())();
                 break;
         }
         if (!is_null($item)) {
@@ -539,7 +539,7 @@ trait CommonDBVisible
                 $inputs[$fkField],
                 $this::class,
                 4,
-                $this->service,
+                $this->getService(),
                 //TRANS: %s is the user login
                 sprintf(__('%s adds a target'), $_SESSION["glpiname"])
             );

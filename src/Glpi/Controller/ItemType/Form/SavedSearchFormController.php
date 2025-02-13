@@ -34,6 +34,7 @@
 
 namespace Glpi\Controller\ItemType\Form;
 
+use Glpi\Controller\GenericFormController;
 use Glpi\Controller\VisibilityController;
 use Glpi\Routing\Attribute\ItemtypeFormLegacyRoute;
 use Glpi\Routing\Attribute\ItemtypeFormRoute;
@@ -43,8 +44,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SavedSearchFormController extends VisibilityController
+class SavedSearchFormController extends GenericFormController
 {
+    use VisibilityController;
+
     #[ItemtypeFormRoute(SavedSearch::class)]
     #[ItemtypeFormLegacyRoute(SavedSearch::class)]
     public function __invoke(Request $request): Response
@@ -53,6 +56,10 @@ class SavedSearchFormController extends VisibilityController
 
         if ($request->query->has('create_notif')) {
             return $this->createNotif();
+        }
+
+        if ($request->request->has('addvisibility')) {
+            return $this->addVisibility($request);
         }
 
         return parent::__invoke($request);
